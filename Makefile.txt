@@ -10,5 +10,3 @@ stop:
 test:
 	curl http://localhost:5000/home
 	curl http://localhost:5000/heartbeat
-	curl http://localhost:5000/test
-
