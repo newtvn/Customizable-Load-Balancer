@@ -23,13 +23,6 @@ class BaseLoadBalancer(ABC):
 
     def __init__(self) -> None:
         self.app = Flask("LoadBalancer")
-        self.handler = RequestHandler(
-            app=self.app,
-            forward_fn=self._forward,
-            add_fn=self.add_replica,
-            remove_fn=self.remove_replica,
-            get_fn=self.get_replicas,
-        )
 
     def get_server(self) -> Tuple[str, int]:
         """
