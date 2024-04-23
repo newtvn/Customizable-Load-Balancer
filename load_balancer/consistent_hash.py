@@ -3,15 +3,17 @@ from random import randint
 class ConsistentHash:
     
     slots : int = 512
-    num_virtual_servers :  int = 9
+    num_virtual_servers :  int 
     servers : dict[int , str]
     hashmap : list[any]
 
 
     
     def __init__(self):
-        self.slots = slots
+        self.slots = 512
+        self.num_virtual_servers = 9
         self.hashmap = [None] * self.slots
+        self.servers = {}
 
     def request_hash(self, i : int ) -> int:
         return ((i**2) + (2*i) + 17 ) % self.slots
@@ -45,13 +47,18 @@ class ConsistentHash:
 
     
     def remove_server(self,server_name : str):
+        if server_name not in self.servers.values():
+            return False
+
         for pos in range(self.slots):
+            if self.hashmap[pos] is None:
+                continue
             if 'server' in self.hashmap[pos]:
                 if self.hashmap[pos]['server'] == self.get_server_id(server_name) :
                     self.hashmap[pos] = None
         return True
     
-    def add_request(self, request_id : int) -> int:
+    def add_request(self, request_id : int) -> str:
         position = self.request_hash(request_id)
         if self.hashmap[position] is None:
             self.hashmap[position] = {'request' : request_id} 
@@ -61,13 +68,18 @@ class ConsistentHash:
                 if self.hashmap[position] is None:
                     self.hashmap[position] = {'request' : request_id}
 
-        while 'server' not in self.hashmap[position]:
-            position = (position + 1) % self.slots
-        
-        return self.hashmap[position]['server']
-    
-    def complete_request(request_id : int):
+        while True:
+            if self.hashmap[position] is None:
+                position = (position + 1) % self.slots
+            elif 'server' not in self.hashmap[position]:
+                position = (position + 1) % self.slots
+            else :
+                return self.servers[self.hashmap[position]['server']]
+
+    def complete_request(self,request_id : int):
         for pos in range(self.slots):
+            if self.hashmap[pos] is None:
+                continue
             if 'request' in self.hashmap[pos]:
                 if self.hashmap[pos]['request'] == request_id:
                     self.hashmap[pos] = None
