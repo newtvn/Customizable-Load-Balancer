@@ -3,13 +3,6 @@ from parsers import response_parser
 import http.server
 class LoadBalancer(BaseLoadBalancer):
 
-    def forward(self, request):
-        """
-        Forwards the request to a backend server and returns response
-
-        The server address is got using consistent hashing
-        """
-        return self._forward(address=("127.0.0.1",4000))
     def spawn(self, server_name):
         return super().spawn(server_name)
     

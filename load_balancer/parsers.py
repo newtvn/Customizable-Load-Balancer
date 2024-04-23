@@ -1,7 +1,7 @@
 
-import json
+from flask import jsonify
 def response_parser(item):
     """
     Parses the response to JSON
     """
-    return json.dumps(item)
+    return jsonify(item)
