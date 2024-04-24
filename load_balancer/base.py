@@ -47,7 +47,7 @@ class BaseLoadBalancer(ABC):
     def spawn(self, server_name: str):
         """Spawns a new container with the given server_name and network_name"""
         res = os.popen(
-            f"sudo docker run --name {server_name} -d --network=app-network -e SERVER_ID={server_name} --rm server:latest"
+            f"docker run --name {server_name} -d --network=app-network -e SERVER_ID={server_name} --rm server:latest"
         ).read()
 
         if len(res) == 0:
