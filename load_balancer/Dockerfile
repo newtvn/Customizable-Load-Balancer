@@ -5,14 +5,13 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the load balancer project files to the container
-COPY . /app
-
+COPY ./requirements.txt ./requirements.txt
 # Install the dependencies
 RUN pip install -r requirements.txt
+
+COPY . /app
 
 # Add any additional configuration or commands here
 
 # Specify the command to run the load balancer
-
-EXPOSE 5000
 CMD [ "python", "core.py" ]
