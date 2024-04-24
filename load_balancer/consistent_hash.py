@@ -43,6 +43,7 @@ class ConsistentHash:
                     if self.hashmap[position] is None:
                         self.hashmap[position] = {'server' : server_id}
         return server_id
+
                         
 
     
@@ -61,20 +62,23 @@ class ConsistentHash:
     def add_request(self, request_id : int) -> str:
         position = self.request_hash(request_id)
         if self.hashmap[position] is None:
-            self.hashmap[position] = {'request' : request_id} 
+            pass
         else:
-            while self.hashmap[position] is not None:
+            while 'server' in self.hashmap[position]:
                 position = (position + 1) % self.slots
-                if self.hashmap[position] is None:
-                    self.hashmap[position] = {'request' : request_id}
-
-        while True:
+        self.hashmap[position] = {'request' : request_id} 
+        count = 0
+        while count < self.slots:
             if self.hashmap[position] is None:
                 position = (position + 1) % self.slots
             elif 'server' not in self.hashmap[position]:
                 position = (position + 1) % self.slots
             else :
                 return self.servers[self.hashmap[position]['server']]
+
+            count = count + 1
+        return False
+                
 
     def complete_request(self,request_id : int):
         for pos in range(self.slots):
@@ -84,6 +88,10 @@ class ConsistentHash:
                 if self.hashmap[pos]['request'] == request_id:
                     self.hashmap[pos] = None
         return True
+
+    def print_map(self):
+        for slot in self.hashmap:
+            print(f'{slot}')
 
         
     
