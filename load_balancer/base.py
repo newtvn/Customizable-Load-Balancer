@@ -7,15 +7,13 @@ from request_handler import RequestHandler
 from http.server import ThreadingHTTPServer
 from typing import Tuple, Dict
 import requests
-from flask import Flask,jsonify
+from flask import Flask, jsonify
 
 coloredlogs.install()
 logger = logging.getLogger(__name__)
 
 
 class BaseLoadBalancer(ABC):
-
-
     """
     Base Class for Load Balancer
     Override get server to implement load balancing algorithms
@@ -46,16 +44,25 @@ class BaseLoadBalancer(ABC):
         """Removes a replica"""
         logger.debug("REMOVING REPLICA")
 
-    def spawn(self, server_name, network_name):
+    def spawn(self, server_name: str):
         """Spawns a new container with the given server_name and network_name"""
         res = os.popen(
-            f"sudo docker run --name {server_name} --network {network_name} --network-alias {server_name} -d {server_name}:latest -e SERVER_ID={server_name}"
+            f"docker run --name {server_name} -d --network=app-network -e SERVER_ID={server_name} --rm server:latest"
         ).read()
 
         if len(res) == 0:
-            logger.warning("Unable to start container")
+            raise Exception("Could not start container")
         else:
             logger.debug("successfully started containerB")
+
+    def kill(self, server_name: str):
+        """Kills the container with the given server_name"""
+
+        res = os.popen(f"sudo docker kill {server_name}").read()
+        if len(res) == 0:
+            raise Exception("Could not stop container")
+        else:
+            logger.debug("successfully stopped container")
 
     def run(self, host, port):
         """
@@ -76,7 +83,7 @@ class BaseLoadBalancer(ABC):
         )
         self.app.add_url_rule("/add", "add_replica", self.add_replica, methods=["POST"])
         self.app.add_url_rule(
-            "/rm", "remove_replica", self.remove_replica, methods=["GET"]
+            "/rm", "remove_replica", self.remove_replica, methods=["DELETE"]
         )
         self.app.add_url_rule("/<path:path>", "forward", self.forward)
 
@@ -84,8 +91,7 @@ class BaseLoadBalancer(ABC):
         """
         Forwards request to the address
         """
-
         server = self.get_server()
         url = f"http://{server[0]}:{server[1]}/{path}"
         response = requests.get(url)
-        return response.json()
+        return response.text
