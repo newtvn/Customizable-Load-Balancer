@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build: ./load_balancer
     environment:
       - SERVER_ID=1
     ports:
@@ -10,6 +10,14 @@ services:
     networks:
       - app-network
 
+  server:
+   image: server:latest
+   deploy:
+      replicas: 2
+   networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+    external: true
