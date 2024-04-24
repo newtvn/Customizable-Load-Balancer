@@ -1,14 +1,19 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  web:
-    build: .
-    environment:
-      - SERVER_ID=1
+  server:
+    build: server/
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+  load_balancer:
+    build: load_balancer/
     ports:
       - "5000:5000"
     networks:
       - app-network
+    privileged: true
 
 networks:
   app-network:

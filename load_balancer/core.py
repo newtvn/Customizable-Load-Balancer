@@ -56,9 +56,8 @@ class LoadBalancer(BaseLoadBalancer):
                             f"{hostname} already in the replicas", 400
                         )
                     try:
-                        threading.Thread(
-                            target=self.handle_add, args=(hostname,)
-                        ).start()
+                        self.handle_add(hostname)
+                       
                     except Exception as e:
                         return response_parser(str(e), 500)
             return self.get_replicas()
@@ -88,9 +87,7 @@ class LoadBalancer(BaseLoadBalancer):
                 for hostname in hostnames:
                     if hostname in self.replicas:
                         try:
-                            threading.Thread(
-                                target=self.handle_remove, args=(hostname,)
-                            ).start()
+                           self.handle_remove(hostname)
                         except Exception as e:
                             return response_parser(str(e), 500)
                     else:
@@ -109,4 +106,4 @@ class LoadBalancer(BaseLoadBalancer):
 
 load_balancer = LoadBalancer()
 
-load_balancer.run(host="127.0.0.1", port=5000)
+load_balancer.run(host="0.0.0.0", port=5000)
