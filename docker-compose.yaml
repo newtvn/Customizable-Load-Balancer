@@ -1,6 +1,10 @@
 version: "3.8"
 
-services:
+services:w
+  web:
+    build: ./load_balancer
+    environment:
+      - SERVER_ID=1
   server:
     container_name: server
     build: server/
@@ -23,6 +27,14 @@ services:
 
     
 
+  server:
+   image: server:latest
+   deploy:
+      replicas: 2
+   networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+    external: true
