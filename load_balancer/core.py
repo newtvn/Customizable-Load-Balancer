@@ -21,7 +21,6 @@ class LoadBalancer(BaseLoadBalancer):
         """
         request_id = random.randint(1000, 9999)
         server = self.consistent_hash.add_request(request_id)
-        self.consistent_hash.complete_request(request_id)
         return server, 4000
 
     def get_replicas(self):
