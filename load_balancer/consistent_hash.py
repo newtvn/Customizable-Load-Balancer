@@ -80,15 +80,6 @@ class ConsistentHash:
         return False
                 
 
-    def complete_request(self,request_id : int):
-        for pos in range(self.slots):
-            if self.hashmap[pos] is None:
-                continue
-            if 'request' in self.hashmap[pos]:
-                if self.hashmap[pos]['request'] == request_id:
-                    self.hashmap[pos] = None
-        return True
-
     def print_map(self):
         for slot in self.hashmap:
             print(f'{slot}')
