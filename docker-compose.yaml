@@ -1,18 +1,21 @@
 version: "3.8"
 
 services:
+
   server:
     container_name: server
     build: server/
-    image: server:latest
-    ports:
-      - "4000:4000"
+    environment:
+      - SERVER_ID=server-1
+    expose:
+      - "4000"
     networks:
       - app-network
+
+
   load_balancer:
     container_name: load_balancer
     build: load_balancer/
-    image: load_balancer:latest
     ports:
       - "5000:5000"
     networks:
@@ -21,8 +24,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     privileged: true
 
-    
-
+  
 networks:
   app-network:
+    name: "app-network"
     driver: bridge
