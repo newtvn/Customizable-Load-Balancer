@@ -61,22 +61,22 @@ class ConsistentHash:
     
     def add_request(self, request_id : int) -> str:
         position = self.request_hash(request_id)
-        if self.hashmap[position] is None:
-            pass
-        else:
-            while 'server' in self.hashmap[position]:
-                position = (position + 1) % self.slots
+        
+        while 'server' in self.hashmap[position]:
+            position = (position + 1) % self.slots
+
         self.hashmap[position] = {'request' : request_id} 
-        count = 0
-        while count < self.slots:
+        
+        assigned = False
+        
+        while assigned is False:
             if self.hashmap[position] is None:
                 position = (position + 1) % self.slots
             elif 'server' not in self.hashmap[position]:
                 position = (position + 1) % self.slots
             else :
+                assigned = True
                 return self.servers[self.hashmap[position]['server']]
-
-            count = count + 1
         return False
                 
 
