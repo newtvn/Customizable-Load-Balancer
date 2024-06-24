@@ -1,88 +1,69 @@
-from random import randint
+from utils import get_random_number
 
-class ConsistentHash:
-    
-    slots : int = 512
-    num_virtual_servers :  int 
-    servers : dict[int , str]
-    hashmap : list[any]
+class ConsistantHash:
+    slots: int
+    k: int
+    N: int
+    consistant_hash: list[any]
+    map: dict[str, int]
 
-
-    
     def __init__(self):
         self.slots = 512
-        self.num_virtual_servers = 9
-        self.hashmap = [None] * self.slots
-        self.servers = {}
+        self.k = 9
+        self.N = 3
+        self.consistant_hash = [0] * self.slots
+        self.map = {}
 
-    def request_hash(self, i : int ) -> int:
-        return ((i**2) + (2*i) + 17 ) % self.slots
+    def hash_request(self, i: int) -> int:
+        return (i*i + 2*i + 17) % self.slots
 
-    def server_hash(self, i : int, j : int) -> int:
-        return ((i**2)+(j**2)+(2*j)+ 25) % self.slots
+    def hash_server(self, i: int,j: int) -> int:
+        return (i*i + j*j + 2*j + 25) % self.slots
 
-    def generate_server_id(self, server_name : str) -> int:
-        while True:
-            id =  randint(1000, 9999)
-            if id not in self.servers:
-                self.servers[id] = server_name
-                return id
+    def get_server_id(self, server: str) -> int:
+        return self.map[server]
 
-    def get_server_id(self, server_name : str) -> int:
-        return list(self.servers.keys())[list(self.servers.values()).index(server_name)]
+    def build(self, server_list: set[str]):
+        for server in server_list:
+            self.add_server(server)
 
-    def add_server(self, server_name : str) -> int:
-        server_id = self.generate_server_id(server_name)
-        for j in range(self.num_virtual_servers) :
-            position = self.server_hash(server_id,j)
-            if self.hashmap[position] is None:
-                self.hashmap[position] = {'server' : server_id} 
+
+    def add_request(self, request_id: int) -> str:
+        req_pos = self.hash_request(request_id)
+
+        # move clockwise till you find the correct server
+        for i in range(self.slots):
+            if self.consistant_hash[req_pos] != 0:
+                return self.consistant_hash[req_pos]
             else:
-                while self.hashmap[position] is not None:
-                    position = (position + 1) % self.slots
-                    if self.hashmap[position] is None:
-                        self.hashmap[position] = {'server' : server_id}
-        return server_id
+                req_pos = (req_pos + 1) % self.slots
 
-                        
+        return None
 
-    
-    def remove_server(self,server_name : str):
-        if server_name not in self.servers.values():
-            return False
 
-        for pos in range(self.slots):
-            if self.hashmap[pos] is None:
-                continue
-            if 'server' in self.hashmap[pos]:
-                if self.hashmap[pos]['server'] == self.get_server_id(server_name) :
-                    self.hashmap[pos] = None
-        return True
-    
-    def add_request(self, request_id : int) -> str:
-        position = self.request_hash(request_id)
-        
-        while 'server' in self.hashmap[position]:
-            position = (position + 1) % self.slots
+    def add_server(self, server: str):
+        for j in range(self.k):
 
-        self.hashmap[position] = {'request' : request_id} 
-        
-        assigned = False
-        
-        while assigned is False:
-            if self.hashmap[position] is None:
-                position = (position + 1) % self.slots
-            elif 'server' not in self.hashmap[position]:
-                position = (position + 1) % self.slots
-            else :
-                assigned = True
-                return self.servers[self.hashmap[position]['server']]
-        return False
-                
+            self.map[server] = get_random_number(6)
+            pos = self.hash_server(self.get_server_id(server),j)
+            if self.consistant_hash[pos] != 0:
 
-    def print_map(self):
-        for slot in self.hashmap:
-            print(f'{slot}')
+                # use linear probing
+                for x in range(self.slots):
+                    pos = (pos + 1) % self.slots
+                    if self.consistant_hash[pos] == 0:
+                        self.consistant_hash[pos] = server
+                        return True
 
-        
-    
+                return False
+            else:
+                self.consistant_hash[pos] = server
+                return True
+
+
+    def remove_server(self, server: str):
+        for i in range(self.slots):
+            if self.consistant_hash[i] != 0:
+                if self.get_server_id(server) == self.get_server_id(self.consistant_hash[i]):
+                    self.consistant_hash[i] = 0
+                    del(self.map[server])
