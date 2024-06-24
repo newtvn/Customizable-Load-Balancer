@@ -25,10 +25,10 @@ class ConsistantHash:
 
     def build(self, server_list: set[str]):
         for server in server_list:
-            self.add_server_to_hash(server)
+            self.add_server(server)
 
 
-    def get_server_from_request(self, request_id: int) -> str:
+    def add_request(self, request_id: int) -> str:
         req_pos = self.hash_request(request_id)
 
         # move clockwise till you find the correct server
@@ -41,7 +41,7 @@ class ConsistantHash:
         return None
 
 
-    def add_server_to_hash(self, server: str):
+    def add_server(self, server: str):
         for j in range(self.k):
 
             self.map[server] = get_random_number(6)
@@ -61,7 +61,7 @@ class ConsistantHash:
                 return True
 
 
-    def remove_server_from_hash(self, server: str):
+    def remove_server(self, server: str):
         for i in range(self.slots):
             if self.consistant_hash[i] != 0:
                 if self.get_server_id(server) == self.get_server_id(self.consistant_hash[i]):
