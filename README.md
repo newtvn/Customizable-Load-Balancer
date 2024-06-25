@@ -97,7 +97,7 @@ curl -X GET http://localhost:5000/home
 - Increment the number of server containers from 2 to 6 (launching 10,000 requests each time).
 - Plot a line chart showing the average load of the servers at each run.
 - Expected Outcome: Efficient scaling with even load distribution as server instances increase.
-![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/f36cf317-fe30-4c7e-805d-2522dda22769)
+![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/23d841b0-bdba-46a0-8081-cbdeffd12231)
 
 
 ### Experiment 3: Failure Recovery
@@ -107,5 +107,9 @@ curl -X GET http://localhost:5000/home
 
 ### Experiment 4: Hash Function Modification
 
-- Modify the hash functions H(i) and Φ(i,j).
+- Modified the hash function: i % 512(number) of slots.
 - Repeat experiments 1 and 2, analyzing the impact on load distribution and scalability.
+  ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/37fe90b7-d576-4410-a0a6-e067ff4d67d2)
+  ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/2fd094d2-4883-4b0d-a732-06be19a3ee14)
+
+
