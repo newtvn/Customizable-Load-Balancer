@@ -8,7 +8,7 @@ from http.server import ThreadingHTTPServer
 from typing import Tuple, Dict
 import requests
 from flask import Flask, jsonify
-
+from requests.exceptions import ConnectionError
 coloredlogs.install()
 logger = logging.getLogger(__name__)
 
@@ -87,11 +87,23 @@ class BaseLoadBalancer(ABC):
         )
         self.app.add_url_rule("/<path:path>", "forward", self.forward)
 
+    def handle_error(self, *args, **kwargs):
+        """
+        Handles request server errors such as 404
+        """
+        logger.error("Handling Server Error")
+        pass
+
     def forward(self, path, method="GET") -> str:
         """
         Forwards request to the address
         """
-        server = self.get_server()
-        url = f"http://{server[0]}:{server[1]}/{path}"
-        response = requests.get(url)
-        return response.text
+        logger.debug(f"Forwarding request to {path}")
+        server, port = self.get_server()
+        url = f"http://{server}:{port}/{path}"
+        try:
+            response = requests.get(url)
+
+            return response.text
+        except ConnectionError as e:
+            self.handle_error(e, path=path, method=method, server=server)
