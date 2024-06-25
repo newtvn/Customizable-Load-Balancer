@@ -104,12 +104,19 @@ curl -X GET http://localhost:5000/home
 
 - Test load balancer endpoints and simulate server failures.
 - Ensure the load balancer spawns new instances to handle the load and maintain the specified number of replicas.
+#### Results
+![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/ea80a5f6-2081-45c9-b1f2-7c91d355efb7)
+<br>
+<sup>Containers  with the prefix 'emergency_' are spawned on failure of a replica.</sup>
+- On failure of 'S2' and 'S4' replica 'emergency_58' and 'emergency_43' are spawned
 
 ### Experiment 4: Hash Function Modification
 
 - Modified the hash function: i % 512(number) of slots.
 - Repeat experiments 1 and 2, analyzing the impact on load distribution and scalability.
+- #### Experiment 1 Results:
   ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/37fe90b7-d576-4410-a0a6-e067ff4d67d2)
+- #### Experiment 2 Results:
   ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/2fd094d2-4883-4b0d-a732-06be19a3ee14)
 
 
