@@ -88,18 +88,35 @@ curl -X GET http://localhost:5000/home
 - Record the number of requests handled by each server and plot a bar chart.
 - Expected Outcome: Even distribution of load among server instances.
 
+![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/4dd71147-b598-42a7-94d0-7633673374da)
+
+
+
 ### Experiment 2: Scalability
 
 - Increment the number of server containers from 2 to 6 (launching 10,000 requests each time).
 - Plot a line chart showing the average load of the servers at each run.
 - Expected Outcome: Efficient scaling with even load distribution as server instances increase.
+![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/23d841b0-bdba-46a0-8081-cbdeffd12231)
+
 
 ### Experiment 3: Failure Recovery
 
 - Test load balancer endpoints and simulate server failures.
 - Ensure the load balancer spawns new instances to handle the load and maintain the specified number of replicas.
+#### Results
+![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/ea80a5f6-2081-45c9-b1f2-7c91d355efb7)
+<br>
+<sup>Containers  with the prefix 'emergency_' are spawned on failure of a replica.</sup>
+- On failure of 'S2' and 'S4' replica 'emergency_58' and 'emergency_43' are spawned
 
 ### Experiment 4: Hash Function Modification
 
-- Modify the hash functions H(i) and Φ(i,j).
+- Modified the hash function: i % 512(number) of slots.
 - Repeat experiments 1 and 2, analyzing the impact on load distribution and scalability.
+- #### Experiment 1 Results:
+  ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/37fe90b7-d576-4410-a0a6-e067ff4d67d2)
+- #### Experiment 2 Results:
+  ![image](https://github.com/nguthiru/Customizable-load-balancer/assets/65071563/2fd094d2-4883-4b0d-a732-06be19a3ee14)
+
+

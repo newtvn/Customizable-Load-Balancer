@@ -6,6 +6,7 @@ from consistent_hash import ConsistentHash
 from flask import request
 import threading
 import random
+from utils import get_random_number
 
 
 class LoadBalancer(BaseLoadBalancer):
@@ -19,8 +20,9 @@ class LoadBalancer(BaseLoadBalancer):
         """
         Returns the server to forward the request to
         """
-        request_id = random.randint(1000, 9999)
+        request_id = random.randint(1000, 999999)
         server = self.consistent_hash.add_request(request_id)
+        # print(f"Moving to Server {server}")
         return server, 4000
 
     def get_replicas(self):
@@ -56,7 +58,7 @@ class LoadBalancer(BaseLoadBalancer):
                         )
                     try:
                         self.handle_add(hostname)
-                       
+
                     except Exception as e:
                         return response_parser(str(e), 500)
             return self.get_replicas()
@@ -69,6 +71,20 @@ class LoadBalancer(BaseLoadBalancer):
             print(f"Added {hostname} to the replicas")
         except Exception as e:
             return response_parser(str(e), 500)
+
+    def handle_error(self, *args, **kwargs):
+        """
+        Handles a server failure by spawning an emergency container and adding it to the replicas while removing the failed server
+        """
+        failed_server = kwargs.get("server")
+
+        emergency_container = f"emergency_{random.randint(1,90)}"
+        self.spawn(emergency_container)
+        self.replicas.add(emergency_container)
+        self.consistent_hash.add_server(emergency_container)
+        self.consistent_hash.remove_server(failed_server)
+        self.forward(kwargs.get("path"), kwargs.get("method"))
+        return super().handle_error(*args, **kwargs)
 
     def remove_replica(self):
         """
@@ -86,7 +102,7 @@ class LoadBalancer(BaseLoadBalancer):
                 for hostname in hostnames:
                     if hostname in self.replicas:
                         try:
-                           self.handle_remove(hostname)
+                            self.handle_remove(hostname)
                         except Exception as e:
                             return response_parser(str(e), 500)
                     else:

@@ -1,6 +1,6 @@
 from utils import get_random_number
 
-class ConsistantHash:
+class ConsistentHash:
     slots: int
     k: int
     N: int
