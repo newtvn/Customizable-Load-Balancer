@@ -59,7 +59,7 @@ Once the system is up and running, you can interact with the load balancer using
     This endpoints accepts a JSON payload defining the number of server instances being added and their names as below:
   ```json
     {"n": 2, "hostnames": ["Server4", "Server5"]}
-   =```
+   ```
 - **DELETE /rm**: Removes server instances from the load balancer.
 
 ### Example Requests
