@@ -1,86 +1,91 @@
-# Customizable Load Balancer in Docker
+# Customizable Load Balancer 
 
-This document outlines a project to implement a customizable load balancer using Docker.
+## Project Overview 
 
-## Overview
+Load balancers are critical for managing multiple server replicas in distributed systems and ensuring that client requests are distributed evenly across servers. This project involves the following tasks:
 
-This project involves building a load balancer that efficiently distributes requests among multiple server replicas using consistent hashing. It automatically manages the number of replicas, scaling up by spawning new instances in case of server failures. Docker containerization simplifies deployment and management.
+1. **Server Implementation**: Create a simple web server that handles HTTP requests.
+2. **Consistent Hashing**: Develop a consistent hashing mechanism to distribute load effectively.
+3. **Load Balancer Implementation**: Implement a load balancer that uses consistent hashing to manage server replicas.
+4. **Performance Analysis**: Test the performance of the load balancer.
 
-## Purpose
+The primary goal is to develop a scalable and fault-tolerant system that maintains a consistent load distribution even as server instances are dynamically added or removed.
 
-The load balancer aims to handle increasing client loads by efficiently distributing requests across server replicas. This improves resource utilization and throughput in applications like distributed caching, databases, and network traffic systems.
+## Installation Instructions
+### Prerequisites
 
-## Coding Environment
+Ensure that you have the following software installed on your system:
 
-- **OS**: Ubuntu 20.04 LTS or above
-- **Docker**: Version 20.10.23 or above
-- **Languages**: Python (preferred), C++, Java, or your choice
+- **Docker**: Version 20.10.23 or higher  ([How to install Docker](https://www.docker.com/get-started/))
+- **Python**: Python 3.0 or higher
+- **Make** (Optional)
 
-## Installation
+### Steps 
 
-1. **Install Docker:**
+1. **Clone the Repository**
 
-```bash
-sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg lsb-release
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL [https://download.docker.com/linux/ubuntu/gpg](https://download.docker.com/linux/ubuntu/gpg) | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] [https://download.docker.com/linux/ubuntu](https://download.docker.com/linux/ubuntu) $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
+  ```bash
+   git clone https://github.com/newtvn/Customizable-load-balancer.git
+   cd Customizable-load-balancer
+```
+2. **Build Server Docker Image**
+
+
+  ```bash
+   docker build -t server:latest server/
 ```
 
-2. **Install Docker-Compose:**
+3. **Deploy the System using Docker Compose**
 
-```bash
-sudo curl -SL https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+  ```bash
+   docker compose up
 ```
 
-## How to Use
+or you can use the included makefile by running:
 
-1. **Running the Project:**
-   - Clone the repository:
-     ```bash
-git clone <repository-url>
-cd <repository-directory>
+  ```bash
+   make run
+```
+## Usage Guidelines
+
+Once the system is up and running, you can interact with the load balancer using the following endpoints:
+
+- **GET /home**: Retrieves a message from a server replica.
+- **GET /heartbeat**: Sends a heartbeat response to check the server status.
+- **GET /rep**: Returns the status of the replicas managed by the load balancer.
+- **POST /add**: Adds new server instances to the load balancer.
+
+    This endpoints accepts a JSON payload defining the number of server instances being added and their names as below:
+  ```json
+    {"n": 2, "hostnames": ["Server4", "Server5"]}
+   =```
+- **DELETE /rm**: Removes server instances from the load balancer.
+
+### Example Requests
+
+**Get Server Message**
+  ```bash
+     curl http://localhost:5000/home
+```
+**Add New Server Instances**
+  ```bash
+     curl -X POST -H "Content-Type: application/json" -d '{"n": 2, "hostnames": ["Server4", "Server5"]}' http://localhost:5000/add
 ```
 
-   - Build and start containers:
-```bash
-docker-compose up --build
+**Remove Server Instances**
+  ```bash
+     curl -X DELETE -H "Content-Type: application/json" -d '{"n": 1, "hostnames": ["Server4"]}' http://localhost:5000/rm
 ```
+## Testing
 
-2. **Interacting with the Load Balancer:**
-   - Check replica status:
-     ```bash
-curl -X GET http://localhost:5000/rep
+### Running Tests
+The Load Balancer tests are stored in the ` tests\` directory and can be run by excecuting:
+
+  ```bash
+pytest tests/test.py
 ```
-   - Add new server instances:
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"n": 2, "hostnames": ["S4", "S5"]}' http://localhost:5000/add
-```
-   - Remove server instances:
-     ```bash
-curl -X DELETE -H "Content-Type: application/json" -d '{"n": 2, "hostnames": ["S4", "S5"]}' http://localhost:5000/rm
-```
-   - Route requests through the load balancer:
-```bash
-curl -X GET http://localhost:5000/home
-```
-## Dependancies
-
--Docker
--Docker-Compose
-
-## Design Choices and Assumptions
-
-- **Consistent Hashing**: Ensures even load distribution and handles dynamic server changes with minimal disruption.
-- **Docker**: Provides an isolated and reproducible environment.
-- **HTTP Endpoints**: Simplifies communication between clients, the load balancer, and server replicas.
-
-## Testing and Performance Analysis
+## Performance Analysis
 
 ### Experiment 1: Load Distribution
 
